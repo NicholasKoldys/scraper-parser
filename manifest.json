@@ -1,0 +1,12 @@
+{
+    "name": "",
+    "manifest_version": 3,
+    "version": "1.0",
+    "description": "",
+    "permissions": [
+    ],
+    "background": {
+        "service_worker": ""
+    },
+    "action": {}
+}
