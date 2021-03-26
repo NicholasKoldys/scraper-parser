@@ -1,11 +1,40 @@
-async function writeToClip(htmlElement) {
+async function writeToClip(preFormattedString) {
     let clipboardItems = [];
-    clipboardItems.push(htmlElement.textContent);
+    clipboardItems.push(preFormattedString);
     await navigator.clipboard.writeText(clipboardItems);
 }
 
-async function copyFromClip(pasteToTextArea) {
-    pasteToTextArea.value = await navigator.clipboard.readText();
+async function copyFromClip(textAreaToPasteTo) {
+    textAreaToPasteTo.value = await navigator.clipboard.readText();
+}
+
+String.prototype.replaceAt = function(index, replacement) {
+    return this.replace(/./g, (c, i) => i == index ? replacement : c);
+    // return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+}
+
+function specialFormatStringWSpacing(stringInput, stringArrSpecial) {
+
+    //.replace(/[\n\r]+|[\s]{2,}/g, ' ')
+    let mainStr = stringInput.trim();
+
+    for(let str of stringArrSpecial) {
+        let regex = new RegExp(str);
+        let found = mainStr.match(regex);
+
+        for(let match of found) {
+            if(match != undefined) {
+                /* I like regex but why wouldnt the match contain the index???
+                    It took me forever to figure out */
+                    mainStr = mainStr.replaceAt(found.index - 1, "\n");
+                    // mainStr = mainStr.replaceAt(found.index + 1, "\n\n\n");
+            }
+        }     
+    }
+
+    return "\n\n-----------------------------------------------------\n" 
+        + mainStr 
+        + "\n\n-----------------------------------------------------\n";
 }
 
 //todo add parameter to search for
@@ -35,7 +64,13 @@ function pullText() {
 
     try {
         if(navigator.clipboard) {
-            writeToClip(best);
+
+            writeToClip( 
+                specialFormatStringWSpacing( 
+                    best.textContent, 
+                    ["/?", "Article ID", "Article Created"] 
+                )
+            );
 
             var textArea = document.createElement("textarea");
             textArea.rows = "30";
