@@ -1,6 +1,6 @@
-async function writeToClip(preFormattedString) {
+async function writeToClip(content) {
     let clipboardItems = [];
-    clipboardItems.push(preFormattedString);
+    clipboardItems.push(content);
     await navigator.clipboard.writeText(clipboardItems);
 }
 
@@ -32,13 +32,17 @@ function specialFormatStringWSpacing(stringInput, stringArrSpecial) {
         }     
     }
 
-    return "\n\n-----------------------------------------------------\n" 
+    return "\n-----------------------------------------------------\n" 
         + mainStr 
-        + "\n\n-----------------------------------------------------\n";
+        + "\n\n-----------------------------------------------------\n\n\n";
 }
 
 //todo add parameter to search for
-function pullText() { 
+/**
+ * 
+ * @param {Boolean} isPlainText - if false copy as a HTML element
+ */
+function pullText(isPlainText) { 
     var headings = document.evaluate("//table[contains(., 'Main Page')]", document, null, XPathResult.ANY_TYPE, null );
 
     let good;
@@ -53,7 +57,14 @@ function pullText() {
     }
 
     //todo replace
-    var best = good.nextSibling.nextSibling.nextSibling;
+    var best;
+    if(good.nextSibling != null) {
+        if(good.nextSibling.nextSibling != null) {
+            if(good.nextSibling.nextSibling.nextSibling != null) {
+                best = good.nextSibling.nextSibling.nextSibling;
+            }
+        }
+    }
 
     document.body.innerHTML = "";
 
@@ -63,14 +74,18 @@ function pullText() {
     helperdiv.appendChild(best);
 
     try {
-        if(navigator.clipboard) {
+        if(navigator.clipboard && best != null) {
 
-            writeToClip( 
-                specialFormatStringWSpacing( 
-                    best.textContent, 
-                    ["/?", "Article ID", "Article Created"] 
-                )
-            );
+            if(isPlainText) {
+                writeToClip( 
+                    specialFormatStringWSpacing( 
+                        best.textContent, 
+                        ["/?", "Article ID", "Article Created"] 
+                    )
+                );
+            } else {
+                writeToClip(helperdiv.innerHTML);
+            }
 
             var textArea = document.createElement("textarea");
             textArea.rows = "30";
@@ -89,5 +104,5 @@ function pullText() {
 
 /* Function Runs */
 {
-    pullText();
+    pullText(true);
 }
