@@ -37,6 +37,40 @@ function specialFormatStringWSpacing(stringInput, stringArrSpecial) {
         + "\n\n-----------------------------------------------------\n\n\n";
 }
 
+function simplifiedContentFormat(textContent) {
+
+    let testStr = new String;
+    let formattedContent = new String;
+    let stringLineArray = new Array;
+
+    let mark = 0;
+    while(mark <= textContent.length - 1) {
+        let i = textContent.substring(mark, textContent.length - 1).indexOf('\n') + 1;
+        if(i == 0) {
+            break;
+        }
+        stringLineArray.push( textContent.substring( mark, mark + i ).trim() ); //i is up to but not including so to include + 1;
+        mark += i;
+    }
+
+    let newLineCount = 0;
+    
+    for(ele of stringLineArray) {
+        //.replace(/[\n\r]+|[\s]{2,}/g, ' ')        
+        if(ele.indexOf('\n') != 0) {
+            if(ele != '') {
+                formattedContent += ele + '\n';
+                newLineCount = 0;
+            } else if( newLineCount < 2) { // only allow 2 newlines between text packages.
+                formattedContent += '\n';
+                newLineCount++;
+            }
+        }
+    }
+
+    return formattedContent;
+}
+
 //todo add parameter to search for
 /**
  * 
