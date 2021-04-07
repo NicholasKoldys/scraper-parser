@@ -42,7 +42,9 @@ function specialFormatStringWSpacing(stringInput, stringArrSpecial) {
  * 
  * @param {Boolean} isPlainText - if false copy as a HTML element
  */
-function pullText(isPlainText) { 
+function pullText(isPlainText) {
+
+    //replace this evaluate with a smart eval
     var headings = document.evaluate("//table[contains(., 'Main Page')]", document, null, XPathResult.ANY_TYPE, null );
 
     let good;
@@ -56,7 +58,7 @@ function pullText(isPlainText) {
         console.log(head);
     }
 
-    //todo replace
+    //todo replace, this was just used to find an element without a class
     var best;
     if(good.nextSibling != null) {
         if(good.nextSibling.nextSibling != null) {
@@ -66,6 +68,8 @@ function pullText(isPlainText) {
         }
     }
 
+    //Remove html structure and create new div with the "best" element's content
+    //This was used for a quick way to see what was copied.
     document.body.innerHTML = "";
 
     var helperdiv = document.createElement("div");
@@ -87,6 +91,10 @@ function pullText(isPlainText) {
                 writeToClip(helperdiv.innerHTML);
             }
 
+            
+            /*//Create textArea as it can be reliably edited and copied from.
+            //Also has the focus action.
+            */
             var textArea = document.createElement("textarea");
             textArea.rows = "30";
             textArea.cols = "80";
