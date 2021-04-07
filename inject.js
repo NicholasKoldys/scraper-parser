@@ -49,33 +49,41 @@ function pullText(isPlainText) {
 
     let good;
 
-    while(true) {
-        let head = headings.iterateNext();
-        if(head == null) {
-            break;
+    if(headings != null) {
+        while(true) {
+            let head = headings.iterateNext();
+            if(head == null) {
+                break;
+            }
+            good = head;
+            console.log(head);
         }
-        good = head;
-        console.log(head);
     }
 
     //todo replace, this was just used to find an element without a class
     var best;
-    if(good.nextSibling != null) {
-        if(good.nextSibling.nextSibling != null) {
-            if(good.nextSibling.nextSibling.nextSibling != null) {
-                best = good.nextSibling.nextSibling.nextSibling;
+
+    if(good != null) {
+        if(good.nextSibling != null) {
+            if(good.nextSibling.nextSibling != null) {
+                if(good.nextSibling.nextSibling.nextSibling != null) {
+                    best = good.nextSibling.nextSibling.nextSibling;
+                }
             }
         }
     }
 
     //Remove html structure and create new div with the "best" element's content
     //This was used for a quick way to see what was copied.
-    document.body.innerHTML = "";
 
-    var helperdiv = document.createElement("div");
-    document.body.appendChild(helperdiv);
-    helperdiv.contentEditable = true;
-    helperdiv.appendChild(best);
+    if(best != null) {
+        document.body.innerHTML = "";
+
+        var helperdiv = document.createElement("div");
+        document.body.appendChild(helperdiv);
+        helperdiv.contentEditable = true;
+        helperdiv.appendChild(best);
+    }
 
     try {
         if(navigator.clipboard && best != null) {
