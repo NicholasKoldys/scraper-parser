@@ -15,7 +15,6 @@ String.prototype.replaceAt = function(index, replacement) {
 
 function specialFormatStringWSpacing(stringInput, stringArrSpecial) {
 
-    //.replace(/[\n\r]+|[\s]{2,}/g, ' ')
     let mainStr = stringInput.trim();
 
     for(let str of stringArrSpecial) {
@@ -73,86 +72,115 @@ function simplifiedContentFormat(textContent) {
 
 //todo add parameter to search for
 /**
- * 
- * @param {Boolean} isPlainText - if false copy as a HTML element
+ * @param {String} searchString - must supply value if searching byClass or byId.
+ * @param {Boolean} isSearchableByClass - if true use searchString for classSearch
+ * @param {Boolean} isSearchableById - if true use searchString for idSearch
+ * @param {Boolean} isSearchableByTerms - if false copy as a HTML element
  */
-function pullText(isPlainText) {
+function pullText(searchString, isSearchableByClass, isSearchableById, isSearchableByTerms, enableHtmlOutput, enableSearchDisplay) {
 
-    //replace this evaluate with a smart eval
-    var headings = document.evaluate("//table[contains(., 'Main Page')]", document, null, XPathResult.ANY_TYPE, null );
+    // replace this evaluate with a smart eval
+    // var headings = document.evaluate(
+    //     ".//table[contains(., 'Main Page')]", // ".//" starts from indicated node stated below, "//" will just search from the root
+    //     document.body, //Just search the body
+    //     null, 
+    //     XPathResult.ANY_TYPE, 
+    //     null 
+    // );
+    var headings;
+
+    if(isSearchableByClass) {
+        headings = document.getElementsByClassName(searchString);
+    }
 
     let good;
 
     if(headings != null) {
-        while(true) {
-            let head = headings.iterateNext();
-            if(head == null) {
-                break;
-            }
-            good = head;
-            console.log(head);
-        }
+
+        good = headings[0];
+
+        // USED IN DOCUMENT XPATH EVALUATION
+        // while(true) {
+        //     let head = headings.iterateNext();
+        //     if(head == null) {
+        //         break;
+        //     }
+        //     good = head;
+        //     console.log(head);
+        // }
     }
 
     //todo replace, this was just used to find an element without a class
     var best;
 
     if(good != null) {
-        if(good.nextSibling != null) {
-            if(good.nextSibling.nextSibling != null) {
-                if(good.nextSibling.nextSibling.nextSibling != null) {
-                    best = good.nextSibling.nextSibling.nextSibling;
-                }
-            }
-        }
+
+        best = good;
+
+        // USED IN DOCUMENT XPATH EVALUATION
+        // if(good.nextSibling != null) {
+        //     if(good.nextSibling.nextSibling != null) {
+        //         if(good.nextSibling.nextSibling.nextSibling != null) {
+        //             best = good.nextSibling.nextSibling.nextSibling;
+        //         }
+        //     }
+        // }
     }
 
-    //Remove html structure and create new div with the "best" element's content
+    //Remove html structure and create new div with the "best" element's content (structure intact)
     //This was used for a quick way to see what was copied.
-
     if(best != null) {
-        document.body.innerHTML = "";
-
+        if(enableSearchDisplay) {
+            document.body.innerHTML = "";
+        }
         var helperdiv = document.createElement("div");
         document.body.appendChild(helperdiv);
         helperdiv.contentEditable = true;
-        helperdiv.appendChild(best);
-    }
+        helperdiv.appendChild(best.cloneNode(true)); //must clone to avoid cutting element from document.
+    
+        try {
+            if(navigator.clipboard && best != null) {
 
-    try {
-        if(navigator.clipboard && best != null) {
+                if(isSearchableByTerms) {
+                    writeToClip( 
+                        specialFormatStringWSpacing( 
+                            best.textContent, 
+                            ["/?", "Article ID", "Article Created"] 
+                        )
+                    );
+                } else if(enableHtmlOutput) {
+                    writeToClip(helperdiv.innerHTML);
+                } else {
+                    writeToClip(
+                        simplifiedContentFormat( best.textContent )
+                    );
+                }
 
-            if(isPlainText) {
-                writeToClip( 
-                    specialFormatStringWSpacing( 
-                        best.textContent, 
-                        ["/?", "Article ID", "Article Created"] 
-                    )
-                );
-            } else {
-                writeToClip(helperdiv.innerHTML);
+                
+                /*//Create textArea as it can be reliably edited and copied from.
+                //Also has the focus action.
+                */
+                var textArea = document.createElement("textarea");
+                textArea.rows = "30";
+                textArea.cols = "80";
+
+                copyFromClip(textArea);
+
+                document.body.appendChild(textArea);
+
+                if(!enableSearchDisplay) {
+                    helperdiv.hidden = true;
+                    textArea.hidden = true;
+                }
             }
-
-            
-            /*//Create textArea as it can be reliably edited and copied from.
-            //Also has the focus action.
-            */
-            var textArea = document.createElement("textarea");
-            textArea.rows = "30";
-            textArea.cols = "80";
-
-            copyFromClip(textArea);
-
-            document.body.appendChild(textArea);
-            textArea.focus;
+        } catch(error) {
+            console.error("browser unable to utilize copy/paste clipboard.." + error);
         }
-    } catch(error) {
-        console.error("browser unable to utilize copy/paste clipboard.." + error);
     }
 }
 
 
 /* Function Runs */
 {
-    pullText(true);
+    pullText( "BackTexto", true, false, false, false, false);
 }
