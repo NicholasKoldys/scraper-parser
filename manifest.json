@@ -5,7 +5,8 @@
     "description": "",
     "permissions": [
         "activeTab",
-        "scripting"
+        "scripting",
+        "contextMenus"
     ],
     "background": {
         "service_worker": "background-worker.js"
